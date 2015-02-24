@@ -1,11 +1,22 @@
+import processing.serial.*;
 import de.voidplus.leapmotion.*;
 
+Serial myPort;
 LeapMotion leap;
 
+String v1;
+String v2;
+String v3;
+IntList Velocity;
+int ServoControl2;
+
 void setup() {
-  size(800, 500, OPENGL);
+  size(800, 600, OPENGL);
   background(255);
-  // ...
+  println(Serial.list());
+  myPort = new Serial(this, Serial.list()[2], 9600);
+  Velocity = new IntList();
+  
 
   leap = new LeapMotion(this);
 }
@@ -39,7 +50,18 @@ void draw() {
     PVector sphere_position  = hand.getSpherePosition();
     float   sphere_radius    = hand.getSphereRadius();
 
-
+   
+    int ServoControl2 = int(map(int(hand_stabilized.x),-100,1100,0,180));
+    System.out.println(str(hand_stabilized.x));
+    myPort.write(ServoControl2);
+      
+      
+    
+      
+   
+    
+    //System.out.println(str(myPort.read()));
+    
     // ----- SPECIFIC FINGER -----
 
     Finger  finger_thumb     = hand.getThumb();
@@ -94,28 +116,35 @@ void draw() {
       PVector finger_velocity   = finger.getVelocity();
       PVector finger_direction  = finger.getDirection();
       float   finger_time       = finger.getTimeVisible();
-
-
+  
       // ----- SPECIFIC FINGER -----
 
       switch(finger.getType()) {
       case 0:
-        // System.out.println("thumb");
+        
         break;
       case 1:
-        // System.out.println("index");
+        Float velox = finger_velocity.y;
+        v1 = str(int(velox));
+        Velocity.append(int(v1));
         break;
       case 2:
-        // System.out.println("middle");
+        Float veloy = finger_velocity.y;
+        v2 = str(int(veloy));
         break;
       case 3:
-        // System.out.println("ring");
+        Float veloz = finger_velocity.y;
+        v3 = str(int(veloz));
         break;
       case 4:
-        // System.out.println("pinky");
         break;
       }
-
+      
+      //if(Velocity.size() > 0){
+        //System.out.println(int(map(int(v1),Velocity.min(),Velocity.max(),0,255)));
+       // int current = int(map(int(v1),Velocity.min(),Velocity.max(),0,255));
+       // myPort.write(ServoControl2 + "," + current + "," + current + "," + current + "," + current);
+     // }
 
       // ----- SPECIFIC BONE -----
 
@@ -138,9 +167,9 @@ void draw() {
 
       // ----- DRAWING -----
 
-      // finger.draw(); // = drawLines()+drawJoints()
-      // finger.drawLines();
-      // finger.drawJoints();
+      //finger.draw(); // = drawLines()+drawJoints()
+      //finger.drawLines();
+      //finger.drawJoints();
 
 
       // ----- TOUCH EMULATION -----
@@ -208,6 +237,7 @@ void draw() {
     float device_range = device.getRange();
   }
 }
+
 
 // ========= CALLBACKS =========
 
